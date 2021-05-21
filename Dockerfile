@@ -1,11 +1,11 @@
-ARG NGINX_VERSION=1.18.0
+ARG NGINX_VERSION=1.19.7
 ARG NGINX_RTMP_VERSION=dev
-ARG FFMPEG_VERSION=4.3.1
+ARG FFMPEG_VERSION=4.3.2
 
 
 ##############################
 # Build the NGINX-build image.
-FROM alpine:3.12 as build-nginx
+FROM alpine:3.13 as build-nginx
 ARG NGINX_VERSION
 ARG NGINX_RTMP_VERSION
 
@@ -41,7 +41,7 @@ RUN \
 
 ###############################
 # Build the FFmpeg-build image.
-FROM alpine:3.12 as build-ffmpeg
+FROM alpine:3.13 as build-ffmpeg
 ARG FFMPEG_VERSION
 ARG PREFIX=/usr/local
 
@@ -100,7 +100,7 @@ RUN curl -LRo - https://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.gz | ta
 
 ##########################
 # Build the release image.
-FROM alpine:3.12
+FROM alpine:3.13
 
 # Set default ports.
 ENV HTTP_PORT 80
