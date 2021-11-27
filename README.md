@@ -1,11 +1,11 @@
 # docker-nginx-rtmp
 A Dockerfile installing NGINX, nginx-rtmp-module and FFmpeg from source with
-default settings for HLS live streaming. Built on Alpine Linux 3.12.
+default settings for HLS live streaming. Built on Alpine Linux 3.15.
 
 
-* Nginx 1.19.7 (Mainline version compiled from source)
+* Nginx 1.20.2 (Stable version compiled from source)
 * nginx-rtmp-module ([Sergey Dryabzhinsky's fork](https://github.com/sergey-dryabzhinsky/nginx-rtmp-module)) 1.1.7.11-dev (compiled from source)
-* ffmpeg 4.3.2 (compiled from source)
+* ffmpeg 4.3.3 (compiled from source)
 * Default HLS settings (See: [nginx.conf](nginx.conf))
 
 
@@ -76,8 +76,9 @@ http://localhost:8080/live/$STREAM_NAME.m3u8
 ```
 $ ffmpeg -buildconf
 
-ffmpeg version 4.4 Copyright (c) 2000-2021 the FFmpeg developers
-  built with gcc 10.2.1 (Alpine 10.2.1_pre1) 20201203
+
+ffmpeg version 4.3.3 Copyright (c) 2000-2021 the FFmpeg developers
+  built with gcc 10.3.1 (Alpine 10.3.1_git20211027) 20211027
   configuration: --prefix=/usr/local --enable-version3 --enable-gpl --enable-nonfree --enable-small --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libvpx --enable-libtheora --enable-libvorbis --enable-libopus --enable-libfdk-aac --enable-libass --enable-libwebp --enable-postproc --enable-avresample --enable-libfreetype --enable-openssl --disable-debug --disable-doc --disable-ffplay --extra-libs='-lpthread -lm'
   libavutil      56. 70.100 / 56. 70.100
   libavcodec     58.134.100 / 58.134.100
