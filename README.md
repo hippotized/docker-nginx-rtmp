@@ -58,12 +58,17 @@ volumes:
 * Stream Key: `hello`
 
 ### Watch Stream
-* In Safari, VLC or any HLS player, open:
+* Load up the example hls.js player in your browser:
 ```
-http://<server ip>:8080/live/$STREAM_NAME.m3u8
+http://localhost:8080/player.html?url=http://localhost:8080/live/hello.m3u8
+```
+
+* Or in Safari, VLC or any HLS player, open:
+```
+http://localhost:8080/live/$STREAM_NAME.m3u8
 ```
 * Example Playlist: `http://localhost:8080/live/hello.m3u8`
-* [VideoJS Player](https://hls-js.netlify.app/demo/?src=http%3A%2F%2Flocalhost%3A8080%2Flive%2Fhello.m3u8)
+* [HLS.js Player](https://hls-js.netlify.app/demo/?src=http%3A%2F%2Flocalhost%3A8080%2Flive%2Fhello.m3u8)
 * FFplay: `ffplay -fflags nobuffer rtmp://localhost:1935/stream/hello`
 
 ### FFmpeg Build
@@ -73,15 +78,15 @@ $ ffmpeg -buildconf
 ffmpeg version 4.3.3 Copyright (c) 2000-2021 the FFmpeg developers
   built with gcc 10.3.1 (Alpine 10.3.1_git20211027) 20211027
   configuration: --prefix=/usr/local --enable-version3 --enable-gpl --enable-nonfree --enable-small --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libvpx --enable-libtheora --enable-libvorbis --enable-libopus --enable-libfdk-aac --enable-libass --enable-libwebp --enable-postproc --enable-avresample --enable-libfreetype --enable-openssl --disable-debug --disable-doc --disable-ffplay --extra-libs='-lpthread -lm'
-  libavutil      56. 51.100 / 56. 51.100
-  libavcodec     58. 91.100 / 58. 91.100
-  libavformat    58. 45.100 / 58. 45.100
-  libavdevice    58. 10.100 / 58. 10.100
-  libavfilter     7. 85.100 /  7. 85.100
+  libavutil      56. 70.100 / 56. 70.100
+  libavcodec     58.134.100 / 58.134.100
+  libavformat    58. 76.100 / 58. 76.100
+  libavdevice    58. 13.100 / 58. 13.100
+  libavfilter     7.110.100 /  7.110.100
   libavresample   4.  0.  0 /  4.  0.  0
-  libswscale      5.  7.100 /  5.  7.100
-  libswresample   3.  7.100 /  3.  7.100
-  libpostproc    55.  7.100 / 55.  7.100
+  libswscale      5.  9.100 /  5.  9.100
+  libswresample   3.  9.100 /  3.  9.100
+  libpostproc    55.  9.100 / 55.  9.100
 
   configuration:
     --prefix=/usr/local
@@ -108,6 +113,24 @@ ffmpeg version 4.3.3 Copyright (c) 2000-2021 the FFmpeg developers
     --disable-ffplay
     --extra-libs='-lpthread -lm'
 ```
+
+
+### FFmpeg Hardware Acceleration
+A `Dockerfile.cuda` image is available to enable FFmpeg hardware acceleration via the [NVIDIA's CUDA](https://trac.ffmpeg.org/wiki/HWAccelIntro#CUDANVENCNVDEC).
+
+Use the tag: `alfg/nginx-rtmp:cuda`:
+```
+docker run -it -p 1935:1935 -p 8080:80 --rm alfg/nginx-rtmp:cuda
+```
+
+You must have a supported platform and driver to run this image.
+
+* https://github.com/NVIDIA/nvidia-docker
+* https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker
+* https://docs.docker.com/docker-for-windows/wsl/
+* https://trac.ffmpeg.org/wiki/HWAccelIntro#CUDANVENCNVDEC
+
+**This image is experimental!*
 
 ## Resources
 * https://alpinelinux.org

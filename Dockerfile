@@ -8,6 +8,7 @@ ARG BASE_IMAGE=alpine:3.15
 FROM ${BASE_IMAGE} as build-nginx
 ARG NGINX_VERSION
 ARG NGINX_RTMP_VERSION
+ARG MAKEFLAGS="-j4"
 
 # Build dependencies.
 RUN apk add --no-cache \
@@ -88,7 +89,6 @@ RUN curl -sLRo - https://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.gz | t
   --enable-libass \
   --enable-libwebp \
   --enable-postproc \
-  --enable-avresample \
   --enable-libfreetype \
   --enable-openssl \
   --disable-debug \
@@ -134,10 +134,10 @@ COPY --from=build-ffmpeg /usr/lib/libfdk-aac.so.2 /usr/lib/libfdk-aac.so.2
 
 # Add NGINX path, config and static files.
 ENV PATH "${PATH}:/usr/local/nginx/sbin"
-ADD nginx.conf /etc/nginx/nginx.conf.template
+COPY nginx.conf /etc/nginx/nginx.conf.template
 
 RUN mkdir -p /opt/data && mkdir /www
-ADD static /www/static
+COPY static /www/static
 
 EXPOSE 1935
 EXPOSE 80
