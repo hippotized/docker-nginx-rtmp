@@ -2,9 +2,9 @@
 A Dockerfile installing NGINX, nginx-rtmp-module and FFmpeg from source with
 default settings for HLS live streaming. Built on Alpine Linux 3.15.
 
-* Nginx 1.20.2 (Stable version compiled from source)
-* nginx-rtmp-module ([Sergey Dryabzhinsky's fork](https://github.com/sergey-dryabzhinsky/nginx-rtmp-module)) 1.1.7.11-dev (compiled from source)
-* ffmpeg 4.3.3 (compiled from source)
+* Nginx 1.23.0 (Mainline version compiled from source)
+* nginx-rtmp-module ([Sergey Dryabzhinsky's fork](https://github.com/sergey-dryabzhinsky/nginx-rtmp-module)) 1.2.x-dev (compiled from source)
+* ffmpeg 5.0.1 (mwaders's ffmpeg static binary)
 * Default HLS settings (See: [nginx.conf](nginx.conf))
 
 
@@ -74,44 +74,75 @@ http://localhost:8080/live/$STREAM_NAME.m3u8
 ### FFmpeg Build
 ```
 $ ffmpeg -buildconf
-
-ffmpeg version 4.3.3 Copyright (c) 2000-2021 the FFmpeg developers
-  built with gcc 10.3.1 (Alpine 10.3.1_git20211027) 20211027
-  configuration: --prefix=/usr/local --enable-version3 --enable-gpl --enable-nonfree --enable-small --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libvpx --enable-libtheora --enable-libvorbis --enable-libopus --enable-libfdk-aac --enable-libass --enable-libwebp --enable-postproc --enable-avresample --enable-libfreetype --enable-openssl --disable-debug --disable-doc --disable-ffplay --extra-libs='-lpthread -lm'
-  libavutil      56. 70.100 / 56. 70.100
-  libavcodec     58.134.100 / 58.134.100
-  libavformat    58. 76.100 / 58. 76.100
-  libavdevice    58. 13.100 / 58. 13.100
-  libavfilter     7.110.100 /  7.110.100
-  libavresample   4.  0.  0 /  4.  0.  0
-  libswscale      5.  9.100 /  5.  9.100
-  libswresample   3.  9.100 /  3.  9.100
-  libpostproc    55.  9.100 / 55.  9.100
+ffmpeg version 5.0.1 Copyright (c) 2000-2022 the FFmpeg developers
+  built with gcc 11.2.1 (Alpine 11.2.1_git20220219) 20220219
+  configuration: --pkg-config-flags=--static --extra-cflags=-fopenmp --extra-ldflags='-fopenmp -Wl,-z,stack-size=2097152' --toolchain=hardened --disable-debug --disable-shared --disable-ffplay --enable-static --enable-gpl --enable-version3 --enable-nonfree --enable-fontconfig --enable-gray --enable-iconv --enable-libaom --enable-libass --enable-libbluray --enable-libdav1d --enable-libdavs2 --enable-libfdk-aac --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libkvazaar --enable-libmodplug --enable-libmp3lame --enable-libmysofa --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libopus --enable-librabbitmq --enable-librav1e --enable-librubberband --enable-libshine --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtheora --enable-libtwolame --enable-libuavs3d --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs2 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openssl
+  libavutil      57. 17.100 / 57. 17.100
+  libavcodec     59. 18.100 / 59. 18.100
+  libavformat    59. 16.100 / 59. 16.100
+  libavdevice    59.  4.100 / 59.  4.100
+  libavfilter     8. 24.100 /  8. 24.100
+  libswscale      6.  4.100 /  6.  4.100
+  libswresample   4.  3.100 /  4.  3.100
+  libpostproc    56.  3.100 / 56.  3.100
 
   configuration:
-    --prefix=/usr/local
-    --enable-version3
+    --pkg-config-flags=--static
+    --extra-cflags=-fopenmp
+    --extra-ldflags='-fopenmp -Wl,-z,stack-size=2097152'
+    --toolchain=hardened
+    --disable-debug
+    --disable-shared
+    --disable-ffplay
+    --enable-static
     --enable-gpl
+    --enable-version3
     --enable-nonfree
-    --enable-small
+    --enable-fontconfig
+    --enable-gray
+    --enable-iconv
+    --enable-libaom
+    --enable-libass
+    --enable-libbluray
+    --enable-libdav1d
+    --enable-libdavs2
+    --enable-libfdk-aac
+    --enable-libfreetype
+    --enable-libfribidi
+    --enable-libgme
+    --enable-libgsm
+    --enable-libkvazaar
+    --enable-libmodplug
     --enable-libmp3lame
+    --enable-libmysofa
+    --enable-libopencore-amrnb
+    --enable-libopencore-amrwb
+    --enable-libopenjpeg
+    --enable-libopus
+    --enable-librabbitmq
+    --enable-librav1e
+    --enable-librubberband
+    --enable-libshine
+    --enable-libsoxr
+    --enable-libspeex
+    --enable-libsrt
+    --enable-libssh
+    --enable-libsvtav1
+    --enable-libtheora
+    --enable-libtwolame
+    --enable-libuavs3d
+    --enable-libvidstab
+    --enable-libvmaf
+    --enable-libvorbis
+    --enable-libvpx
+    --enable-libwebp
     --enable-libx264
     --enable-libx265
-    --enable-libvpx
-    --enable-libtheora
-    --enable-libvorbis
-    --enable-libopus
-    --enable-libfdk-aac
-    --enable-libass
-    --enable-libwebp
-    --enable-postproc
-    --enable-avresample
-    --enable-libfreetype
+    --enable-libxavs2
+    --enable-libxml2
+    --enable-libxvid
+    --enable-libzimg
     --enable-openssl
-    --disable-debug
-    --disable-doc
-    --disable-ffplay
-    --extra-libs='-lpthread -lm'
 ```
 
 

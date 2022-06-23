@@ -1,21 +1,24 @@
-ARG NGINX_VERSION=1.20.2
+ARG NGINX_VERSION=1.23.0
 ARG NGINX_RTMP_VERSION=dev
-ARG FFMPEG_VERSION=4.3.3
-ARG BASE_IMAGE=alpine:3.15
+ARG FFMPEG_VERSION=5.0.1-3
+ARG BASE_IMAGE=alpine:3.16
+
+ARG CFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPIE"
+ARG CXXFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPIE"
+ARG LDFLAGS="-Wl,-z,relro,-z,now"
+
 
 ##############################
 # Build the NGINX-build image.
 FROM ${BASE_IMAGE} as build-nginx
 ARG NGINX_VERSION
 ARG NGINX_RTMP_VERSION
-ARG MAKEFLAGS="-j4"
 
 # Build dependencies.
 RUN apk add --no-cache \
   build-base \
   curl \
   linux-headers \
-  make \
   openssl-dev \
   pcre-dev \
   zlib-dev
@@ -35,68 +38,13 @@ RUN \
   --with-file-aio \
   --with-http_ssl_module \
   --with-http_v2_module \
-  --with-debug \
   --with-cc-opt="-Wimplicit-fallthrough=0 -Wdeprecated-declarations" && \
   cd /tmp/nginx-${NGINX_VERSION} && make && make install && \
   rm -rf /var/cache/* /tmp/*
 
 ###############################
 # Build the FFmpeg-build image.
-FROM ${BASE_IMAGE} as build-ffmpeg
-ARG FFMPEG_VERSION
-ARG PREFIX=/usr/local
-
-# FFmpeg build dependencies.
-RUN apk add --no-cache \
-  build-base \
-  curl \
-  freetype-dev \
-  lame-dev \
-  libogg-dev \
-  libass \
-  libass-dev \
-  libvpx-dev \
-  libvorbis-dev \
-  libwebp-dev \
-  libtheora-dev \
-  openssl-dev \
-  opus-dev \
-  rtmpdump-dev \
-  x264-dev \
-  x265-dev \
-  yasm && \
-apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community fdk-aac-dev
-
-# Get FFmpeg source.
-RUN curl -sLRo - https://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.gz | tar xz -C /tmp/ && \
-# Compile ffmpeg. \
-  export MAKEFLAGS="-j$(getconf _NPROCESSORS_ONLN)" && \
-  cd /tmp/ffmpeg-${FFMPEG_VERSION} && \
-  ./configure \
-  --prefix=${PREFIX} \
-  --enable-version3 \
-  --enable-gpl \
-  --enable-nonfree \
-  --enable-small \
-  --enable-libmp3lame \
-  --enable-libx264 \
-  --enable-libx265 \
-  --enable-libvpx \
-  --enable-libtheora \
-  --enable-libvorbis \
-  --enable-libopus \
-  --enable-libfdk-aac \
-  --enable-libass \
-  --enable-libwebp \
-  --enable-postproc \
-  --enable-libfreetype \
-  --enable-openssl \
-  --disable-debug \
-  --disable-doc \
-  --disable-ffplay \
-  --extra-libs="-lpthread -lm" && \
-  make && make install && make distclean && \
-  rm -rf /var/cache/* /tmp/*
+FROM mwader/static-ffmpeg:${FFMPEG_VERSION} as build-ffmpeg
 
 ##########################
 # Build the release image.
@@ -112,25 +60,15 @@ RUN apk add --no-cache \
   bash \
   curl \
   gettext \
-  lame \
-  libass \
-  libogg \
-  libtheora \
-  libvorbis \
-  libvpx \
-  libwebp \
   openssl \
-  opus \
   pcre \
   rtmpdump \
-  x264-dev \
-  x265-dev && \
+  && \
   rm -rf /var/cache/* /tmp/*
 
 COPY --from=build-nginx /usr/local/nginx /usr/local/nginx
 COPY --from=build-nginx /etc/nginx /etc/nginx
-COPY --from=build-ffmpeg /usr/local /usr/local
-COPY --from=build-ffmpeg /usr/lib/libfdk-aac.so.2 /usr/lib/libfdk-aac.so.2
+COPY --from=build-ffmpeg /ffmpeg /usr/local/bin/
 
 # Add NGINX path, config and static files.
 ENV PATH "${PATH}:/usr/local/nginx/sbin"
@@ -141,6 +79,9 @@ COPY static /www/static
 
 EXPOSE 1935
 EXPOSE 80
+
+RUN nginx -V >&2
+RUN ffmpeg -version >&2
 
 CMD envsubst "$(env | sed -e 's/=.*//' -e 's/^/\$/g')" < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && \
   nginx
